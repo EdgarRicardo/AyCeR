@@ -1,0 +1,17 @@
+Scores:
+
+BlackRikena: 20.939973
+
+ez master: 21.246804
+
+test: 16.814211 seg en dificultad 1
+
+Ricardo: 13.315061 seg en dificultad 1
+
+Edgara: 26.637877 seg en dificultad 1
+
+Test: 5.939622 seg en dificultad 2
+
+TestClase: 45.813972 seg en dificultad 1
+
+Rikena: 17.199994 seg en dificultad 1
