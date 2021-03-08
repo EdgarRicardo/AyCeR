@@ -98,28 +98,45 @@ def socketCliente():
                         print("Directiro no valido")
                     input("Press Enter to continue...")
                 elif opt == 3:
-                    fileName, content = readFile()
+                    fileName, file = readFile()
                     if fileName:
                         data = {
                             "opt": opt,
                             "fileName": fileName,
-                            "content": content,
                             "path": path
                         }
                         sendInfo(socket_tcp, data)
+
+                        while True:
+                            content = file.read(BUFFER_SIZE)
+                            socket_tcp.sendall(content)
+                            if not content:
+                                break
+                        
+                        file.close()
                         msg = readRes(socket_tcp)["message"]
                         print(msg)
                     input("Press Enter to continue...")
                 elif opt == 4:
-                    fileName, content = readDirectory()
+                    fileName, directory = readDirectory()
                     if fileName:
                         data = {
                             "opt": opt,
                             "fileName": fileName,
                             "path": path
                         }
+                        archivo_zip = shutil.make_archive("carpetaToSend","zip",directory)
+                        file = open(archivo_zip,"rb")
+
                         sendInfo(socket_tcp, data)
-                        socket_tcp.send(content)
+                        while True:
+                            content = file.read(BUFFER_SIZE)
+                            socket_tcp.sendall(content)
+                            if not content:
+                                break
+                            
+                        file.close()
+                        os.remove(archivo_zip)
                         msg = readRes(socket_tcp)["message"]
                         print(msg)
                     input("Press Enter to continue...")
@@ -146,30 +163,18 @@ def readDirectory():
         root.withdraw() # Quitar ventana de tkinter
         directory = filedialog.askdirectory(initialdir = ".",title = "Selelecciona la carpeta")
         fileName = directory.split("/")[-1]
-
-        archivo_zip = shutil.make_archive("carpetaToSend","zip",directory)
-        file = open(archivo_zip,"rb")
-        content = file.read()
-        file.close()
-        os.remove(archivo_zip)
-
-        return fileName, content
+        return fileName, directory
     except Exception as e:
         print(e)
         return None, None
-
-def crearDirectorio():
-    name = input()
 
 def readFile():
     try:
         root = Tk()
         root.withdraw() # Quitar ventana de tkinter
-        file =  filedialog.askopenfile(mode="r",initialdir = ".",title = "Selelecciona tu archivo")
+        file =  filedialog.askopenfile(mode="rb",initialdir = ".",title = "Selelecciona tu archivo")
         fileName = os.path.basename(file.name)
-        content = file.read()
-        file.close()
-        return fileName, content
+        return fileName, file
     except Exception as e:
         print(e)
         return None, None

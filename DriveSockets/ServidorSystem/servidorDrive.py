@@ -55,18 +55,27 @@ def socketServidor():
                             elif res["opt"] == 3:
                                 try:
                                     path = initialPath+res["path"]+"/"+res["fileName"]
-                                    file = open(path,"w")
-                                    file.write(res["content"])
+                                    file = open(path,"wb")
+
+                                    while True:
+                                        content = conn.recv(BUFFER_SIZE)
+                                        if not content:   
+                                            break
+                                        file.write(content)
+
                                     file.close()
                                     sendInfo(conn,{"message":"Archivo creado"})
                                 except:
                                     sendInfo(conn,{"message":"Error al crear archivo"}) 
                             elif res["opt"] == 4:
                                 try:
-                                    fileZip = conn.recv(BUFFER_SIZE)
                                     path = initialPath+res["path"]+"/"+res["fileName"]+".zip"
                                     file = open(path,"wb")
-                                    file.write(content)
+                                    while True:
+                                        bytes_read = conn.recv(BUFFER_SIZE)
+                                        if not bytes_read:    
+                                            break
+                                        file.write(bytes_read)
                                     file.close()
                                     sendInfo(conn,{"message":"Carpeta creada"})
                                 except Exception as e:
