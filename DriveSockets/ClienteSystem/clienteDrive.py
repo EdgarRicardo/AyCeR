@@ -50,7 +50,7 @@ def socketCliente():
             path = ""
             while True:
                 borrarPantalla()
-                print("Current Path", path)
+                print("Current Path", path if path != "" else "/")
                 opt = menuOpts()
                 if opt in [1,5,6]:
                     sendInfo(socket_tcp,{"opt":opt,"path":path})
