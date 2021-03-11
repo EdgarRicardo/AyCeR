@@ -48,35 +48,42 @@ def socketServidor():
                                             path = initialPath+res2["path"]+"/"+res2["name"]
                                             if res["opt"] == 5:
                                                 os.remove(path)
-                                                sendInfo(conn,{"message":"Arichivo eliminado correctamente"})
+                                                sendInfo(conn,{"message":"Archivo eliminado correctamente"})
                                             else:
                                                 shutil.rmtree(path)
                                                 sendInfo(conn,{"message":"Carpeta eliminada correctamente"})                    
                             elif res["opt"] == 3:
                                 try:
                                     path = initialPath+res["path"]+"/"+res["fileName"]
+                                    fileSize = res["fileSize"]
                                     file = open(path,"wb")
 
-                                    while True:
+                                    for i in range(0,fileSize//BUFFER_SIZE+1):
                                         content = conn.recv(BUFFER_SIZE)
-                                        if not content:   
-                                            break
                                         file.write(content)
 
+                                    print('Salí')
                                     file.close()
                                     sendInfo(conn,{"message":"Archivo creado"})
                                 except:
                                     sendInfo(conn,{"message":"Error al crear archivo"}) 
                             elif res["opt"] == 4:
                                 try:
-                                    path = initialPath+res["path"]+"/"+res["fileName"]+".zip"
-                                    file = open(path,"wb")
-                                    while True:
+                                    directory = initialPath+res["path"]+"/"+res["fileName"]
+                                    fileSize = res["fileSize"]
+                                    fileZip = directory+".zip"
+                                    file = open(fileZip,"wb")
+                                    
+                                    for i in range(0,fileSize//BUFFER_SIZE+1):
                                         bytes_read = conn.recv(BUFFER_SIZE)
-                                        if not bytes_read:    
-                                            break
                                         file.write(bytes_read)
+
                                     file.close()
+                                    
+                                    os.makedirs(directory, exist_ok=True)
+                                    shutil.unpack_archive(fileZip, directory, "zip")
+                                    os.remove(fileZip)
+
                                     sendInfo(conn,{"message":"Carpeta creada"})
                                 except Exception as e:
                                     print(e)

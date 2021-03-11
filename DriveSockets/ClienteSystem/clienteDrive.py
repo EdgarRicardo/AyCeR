@@ -98,20 +98,19 @@ def socketCliente():
                         print("Directiro no valido")
                     input("Press Enter to continue...")
                 elif opt == 3:
-                    fileName, file = readFile()
+                    fileName, file, fileSize = readFile()
                     if fileName:
                         data = {
                             "opt": opt,
                             "fileName": fileName,
-                            "path": path
+                            "path": path,
+                            "fileSize": fileSize
                         }
-                        sendInfo(socket_tcp, data)
 
-                        while True:
+                        sendInfo(socket_tcp, data)
+                        for i in range(0,fileSize//BUFFER_SIZE+1):
                             content = file.read(BUFFER_SIZE)
                             socket_tcp.sendall(content)
-                            if not content:
-                                break
                         
                         file.close()
                         msg = readRes(socket_tcp)["message"]
@@ -120,21 +119,23 @@ def socketCliente():
                 elif opt == 4:
                     fileName, directory = readDirectory()
                     if fileName:
+                        archivo_zip = shutil.make_archive("carpetaToSend","zip",directory)
+                        file_stats = os.stat(archivo_zip)
+                        fileSize = file_stats.st_size
                         data = {
                             "opt": opt,
                             "fileName": fileName,
-                            "path": path
+                            "path": path,
+                            "fileSize": fileSize
                         }
-                        archivo_zip = shutil.make_archive("carpetaToSend","zip",directory)
-                        file = open(archivo_zip,"rb")
 
+                        file = open(archivo_zip,"rb")
                         sendInfo(socket_tcp, data)
-                        while True:
+                        for i in range(0,fileSize//BUFFER_SIZE+1):
                             content = file.read(BUFFER_SIZE)
                             socket_tcp.sendall(content)
-                            if not content:
-                                break
-                            
+                        
+                        print("Salí")
                         file.close()
                         os.remove(archivo_zip)
                         msg = readRes(socket_tcp)["message"]
@@ -173,11 +174,12 @@ def readFile():
         root = Tk()
         root.withdraw() # Quitar ventana de tkinter
         file =  filedialog.askopenfile(mode="rb",initialdir = ".",title = "Selelecciona tu archivo")
+        file_stats = os.stat(file.name)
         fileName = os.path.basename(file.name)
-        return fileName, file
+        return fileName, file, file_stats.st_size
     except Exception as e:
         print(e)
-        return None, None
+        return None, None, None
 
 def sendInfo(socket_tcp, data):
     toSend = json.dumps(data) 
