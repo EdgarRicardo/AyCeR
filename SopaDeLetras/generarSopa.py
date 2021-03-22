@@ -18,10 +18,11 @@ class Sopa():
         possible = self.posibleDireccion(sopa,word,x,y)
         if possible:
             xf,yf = self.forDirecccion(sopa,word,possible,x,y,True)
-            datosPalabras[word] = {
+            """ datosPalabras[word] = {
                 "inicio": str(x)+","+str(y),
                 "fin": str(xf)+","+str(yf)
-            }
+            } """
+            datosPalabras[word] = "("+str(x)+","+str(y)+":"+str(xf)+","+str(yf)+")"
         else:
             self.posicionarPalabra(word,sopa,datosPalabras)
             
