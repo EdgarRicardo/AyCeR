@@ -3,11 +3,18 @@ from datetime import datetime
 import json
 import pprint
 from generarSopa import Sopa
+import os
 
 sopaClass = Sopa()
 host = socket.gethostname()
 port = 12345
 BUFFER_SIZE = 65000
+
+def borrarPantalla(): # Borrar pantalla para cualquier sistema
+    if os.name == "posix":
+       os.system ("clear")
+    elif os.name == "ce" or os.name == "nt" or os.name == "dos":
+       os.system ("cls")
 
 def socketCliente():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_tcp:
