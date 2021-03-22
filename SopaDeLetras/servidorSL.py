@@ -2,18 +2,36 @@ import socket
 import random
 import json
 import sys
+from generarSopa import Sopa
+import pprint
 
 host = socket.gethostname() # Esta función nos da el nombre de la máquina
 port = 12345
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 65000
+size = 15
+sopaClass = Sopa()
 
-animales = ["leon","perro","gato","lagartija","serpiente","caballo","tiburon","cucaracha","ardilla","tigre","conejo","abeja","burro","cerdo","jirafa","tortuga"]
-cocina = ["tenedor","plato","cuchara","sarten","cuchillo","sopa","estufa","refrigerador","comida","cacerola","cubiertos","especia","sal","ajo","horno","microondas","embudo"]
-oficina = ["archivo","computadora","lapiz","plumas","hojas","jefe","papelera","tijeras","agenda","engrapadora","impresora","calendario","contabilidad","finanzas","escritorio","telefono"]
-frutas = ["naranja","pera","melon","sandia","fresa","guayaba","manzana","papaya","mango","piña","platano","uvas","arandano","mandarina","cereza","zarzamora"]
+animales = ["leon","perro","gato","lagartija","serpiente","caballo","tiburon","cucaracha","ardilla","tigre","conejo","abeja","burro","cerdo","jirafa","tortuga","hormiga","elefante","pato","peces"]
+cocina = ["tenedor","plato","cuchara","sarten","cuchillo","sopa","estufa","refrigerador","comida","cacerola","cubiertos","especia","sal","ajo","horno","microondas","embudo","receta","cocinero","chef","pinche"]
+oficina = ["archivo","computadora","lapiz","plumas","hojas","jefe","papelera","tijeras","agenda","engrapadora","impresora","calendario","contabilidad","finanzas","escritorio","telefono","godinez","quincena","reportes","dinero"]
+frutas = ["naranja","pera","melon","sandia","fresa","guayaba","manzana","papaya","mango","piña","platano","uvas","arandano","mandarina","cereza","zarzamora","frambuesa","limon","coco","higo"]
 
 def generarSopa(categoria):
-    print("Test")
+    sopa = [["" for y in range(size+1)] for x in range(size+1)]
+    datosPalabras = {}
+    
+    for el in categoria:
+        sopaClass.posicionarPalabra(el,sopa,datosPalabras)
+
+    for x in range(size+1): 
+        for y in range(size+1):
+            if sopa[x][y]  == "":
+                sopa[x][y] =  random.choice('abcdefghijklmnñopqrstuvwxyz')
+
+    sopaClass.printSopa(sopa)
+    pprint.pprint(datosPalabras)
+
+    return sopa, datosPalabras
 
 def socketServidor():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_tcp: #socket.AF_INE -> IPv4 ; socket.SOCK_STREAM -> TCP : Socket TCP/IP
@@ -31,19 +49,26 @@ def socketServidor():
                         if data:
                             dif = data.decode('utf-8')
                             print('[*] Categoria elegida: ' + dif)
-                            palabra = ""
                             if int(dif) == 1:
-                                generarSopa(animales)
+                                sopa,datosPalabras = generarSopa(animales)
                             elif int(dif) == 2:
-                                generarSopa(cocina)
+                                sopa,datosPalabras = generarSopa(cocina)
                             elif int(dif) == 3:
-                                generarSopa(oficina)
+                                sopa,datosPalabras = generarSopa(oficina)
                             elif int(dif) == 4:
-                                generarSopa(frutas)
+                                sopa,datosPalabras = generarSopa(frutas)
 
-                            #Se enviara la sopa de letras + el array con las palabras a encomtar
-                            #conn.send()
+                            sopaLetras = {
+                                "sopa": sopa,
+                                "datosPalabras": datosPalabras 
+                            }
 
+                            #Se enviara la sopa de letras + el array con las palabras a encontrar
+                            res = json.dumps(sopaLetras)
+                            conn.send(res.encode('utf-8'))
+                            
+                            #Esperamos que el cliente nos envie el score
+                            print("Esperando score del usuario")
                             data = conn.recv(BUFFER_SIZE)
                             if data:
                                 scoresFile = open('scores.txt','a+')

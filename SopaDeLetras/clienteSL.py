@@ -1,10 +1,13 @@
 import socket
 from datetime import datetime
 import json
+import pprint
+from generarSopa import Sopa
 
+sopaClass = Sopa()
 host = socket.gethostname()
 port = 12345
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 65000
 
 def socketCliente():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_tcp:
@@ -20,7 +23,13 @@ def socketCliente():
                 socket_tcp.send(str(dificultad).encode('utf-8'))
 
                 # Se recibiran la sopa de letras y el array de palabras con sus coordenadas
-                #  data = socket_tcp.recv(BUFFER_SIZE)
+                data = socket_tcp.recv(BUFFER_SIZE)
+                sopaLetras = json.loads(data.decode('utf-8'))
+
+                sopa = sopaLetras["sopa"] # Es la sopa de letras como tal
+                datosPalabras = sopaLetras["datosPalabras"] # Los datos por palabras de su inicio y fin 
+
+                sopaClass.printSopa(sopa)
 
                 startTime = datetime.now()
 
