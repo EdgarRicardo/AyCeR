@@ -15,6 +15,7 @@ animales = ["leon","perro","gato","lagartija","serpiente","caballo","tiburon","c
 cocina = ["tenedor","plato","cuchara","sarten","cuchillo","sopa","estufa","refrigerador","comida","cacerola","cubiertos","especia","sal","ajo","horno","microondas","embudo","receta","cocinero","chef","pinche"]
 oficina = ["archivo","computadora","lapiz","plumas","hojas","jefe","papelera","tijeras","agenda","engrapadora","impresora","calendario","contabilidad","finanzas","escritorio","telefono","godinez","quincena","reportes","dinero"]
 frutas = ["naranja","pera","melon","sandia","fresa","guayaba","manzana","papaya","mango","piña","platano","uvas","arandano","mandarina","cereza","zarzamora","frambuesa","limon","coco","higo"]
+pruebas = ["casa","perro","computadora","lagartija"]
 
 def generarSopa(categoria):
     sopa = [["" for y in range(size+1)] for x in range(size+1)]
@@ -57,6 +58,8 @@ def socketServidor():
                                 sopa,datosPalabras = generarSopa(oficina)
                             elif int(dif) == 4:
                                 sopa,datosPalabras = generarSopa(frutas)
+                            elif int(dif) == 5:
+                                sopa,datosPalabras = generarSopa(pruebas)
 
                             sopaLetras = {
                                 "sopa": sopa,
@@ -81,6 +84,7 @@ def socketServidor():
                             break
             finally:
                 # Clean up the connection
+                print('Se cerró la conexión con', addr)
                 conn.close()
     
 

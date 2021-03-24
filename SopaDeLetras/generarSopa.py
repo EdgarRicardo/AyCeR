@@ -22,7 +22,7 @@ class Sopa():
                 "inicio": str(x)+","+str(y),
                 "fin": str(xf)+","+str(yf)
             } """
-            datosPalabras[word] = "("+str(x)+","+str(y)+":"+str(xf)+","+str(yf)+")"
+            datosPalabras[str(x)+","+str(y)+":"+str(xf)+","+str(yf)] = word
         else:
             self.posicionarPalabra(word,sopa,datosPalabras)
             

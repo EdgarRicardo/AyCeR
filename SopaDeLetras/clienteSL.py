@@ -24,9 +24,10 @@ def socketCliente():
             print("2.- Cocina")
             print("3.- Oifcina")
             print("4.- Frutas")
+            print("5.- Pruebas")
             print("Selecione una categoria: ")
             dificultad = input()
-            if dificultad in ["1","2","3","4"]:
+            if dificultad in ["1","2","3","4","5"]:
                 socket_tcp.send(str(dificultad).encode('utf-8'))
 
                 # Se recibiran la sopa de letras y el array de palabras con sus coordenadas
@@ -40,16 +41,19 @@ def socketCliente():
                 input("Se obtuvo la sopa con las palabras que eligio, desde el momento que se muestre la sopa \n su tiempo comenzara a correr. Suerte!!!...")
                
                 tiempo = operacionesJugador(sopa,datosPalabras)
+            
                 #Juego
-
-                print("Felicidades crack, acabaste en " + str(tiempo) + "seg!!!\nDanos un nickname para registrar tu score: ")
-                nickname = input()
-                data = {
-                    "time": tiempo,
-                    "nickname": nickname
-                }
-                res = json.dumps(data) 
-                socket_tcp.send(res.encode('utf-8'))
+                if tiempo:
+                    print("Felicidades crack, acabaste la sopa en " + str(tiempo) + "seg!!!\nDanos un nickname para registrar tu score: ")
+                    nickname = input()
+                    data = {
+                        "time": tiempo,
+                        "nickname": nickname
+                    }
+                    res = json.dumps(data) 
+                    socket_tcp.send(res.encode('utf-8'))
+                else:
+                    print("Lo intentaste brou, pero para la próxima acaba, fracasado!!!")
             else:
                 print("Dificultad no valida :(")
         finally:
@@ -60,24 +64,29 @@ def operacionesJugador(sopa,palabras):
     borrarPantalla()
     bandera = True
     palabrasFaltantes = list(palabras.values())
-
+    palabrasEncontradas = []
     startTime = datetime.now()
     while bandera:
         borrarPantalla()
-        print("Ingrese las coordenadas de la palabra que encontró: ")
-        print()
+        print("Sopa de Letras : )\n\nSi deseas terminar el juego escribe 'salir'\nFormato de ingreso de coordenadas (FilaInicio,ColumnaInicial:FilaFinal,ColumnaFinal)\n")
         sopaClass.printSopa(sopa)
-        print()
-        print("Palabras que te hacen falta:",end=" ")
-        print(palabrasFaltantes)
-        coordenadasElegida = input("Ingresa las coordenadas de la palabra que encontraste con el siguiente\nformato FilaInicio,ColumnaInicial,FilaFinal,ColumnaFinal: ")
+        print("\n\nPalabras faltantes:",end=" ")
+        print(palabrasFaltantes,end="\n\n")
+
+        print("Palabras encontradas:",end=" ")
+        print(palabrasEncontradas,end="\n\n")
+
+        coordenadasElegida = input("Ingresa las coordenadas de la palabra que encontraste: ").replace(' ','').replace('\t','')
+        if coordenadasElegida == 'salir':
+            return None
         resultado = palabras.get(coordenadasElegida)
 
         if  resultado == None:
-            input("Error, esas coordenadas no corresponden con ninguna de las palabras...")
+            input("Error, esas coordenadas no corresponden con ninguna de las palabras faltantes :(")
         else:
-            input("Muy bien, encontraste la palabra "+resultado)
+            palabrasEncontradas.append(resultado)
             palabrasFaltantes.remove(resultado)
+            palabras.pop(coordenadasElegida)
             if len(palabrasFaltantes) == 0:
                 endTime = datetime.now()
                 bandera = False
