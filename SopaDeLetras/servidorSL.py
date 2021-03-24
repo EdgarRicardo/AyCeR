@@ -6,7 +6,7 @@ from generarSopa import Sopa
 import pprint
 
 host = socket.gethostname() # Esta función nos da el nombre de la máquina
-port = 12345
+port = 12346
 BUFFER_SIZE = 65000
 size = 15
 sopaClass = Sopa()

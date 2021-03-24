@@ -7,7 +7,7 @@ import os
 
 sopaClass = Sopa()
 host = socket.gethostname()
-port = 12345
+port = 12346
 BUFFER_SIZE = 65000
 
 def borrarPantalla(): # Borrar pantalla para cualquier sistema
@@ -36,20 +36,16 @@ def socketCliente():
                 sopa = sopaLetras["sopa"] # Es la sopa de letras como tal
                 datosPalabras = sopaLetras["datosPalabras"] # Los datos por palabras de su inicio y fin 
 
-                sopaClass.printSopa(sopa)
-
-                startTime = datetime.now()
-
+                
+                input("Se obtuvo la sopa con las palabras que eligio, desde el momento que se muestre la sopa \n su tiempo comenzara a correr. Suerte!!!...")
+               
+                tiempo = operacionesJugador(sopa,datosPalabras)
                 #Juego
 
-                endTime = datetime.now()
-                time = (endTime - startTime)
-                realTime = time.total_seconds()
-
-                print("Felicidades crack, acabaste en " + str(realTime) + "seg!!!\nDanos un nickname para registrar tu score: ")
+                print("Felicidades crack, acabaste en " + str(tiempo) + "seg!!!\nDanos un nickname para registrar tu score: ")
                 nickname = input()
                 data = {
-                    "time": realTime,
+                    "time": tiempo,
                     "nickname": nickname
                 }
                 res = json.dumps(data) 
@@ -60,7 +56,36 @@ def socketCliente():
             print('closing socket')
             socket_tcp.close()
 
+def operacionesJugador(sopa,palabras):
+    borrarPantalla()
+    bandera = True
+    palabrasFaltantes = list(palabras.values())
 
+    startTime = datetime.now()
+    while bandera:
+        borrarPantalla()
+        print("Ingrese las coordenadas de la palabra que encontró: ")
+        print()
+        sopaClass.printSopa(sopa)
+        print()
+        print("Palabras que te hacen falta:",end=" ")
+        print(palabrasFaltantes)
+        coordenadasElegida = input("Ingresa las coordenadas de la palabra que encontraste con el siguiente\nformato FilaInicio,ColumnaInicial,FilaFinal,ColumnaFinal: ")
+        resultado = palabras.get(coordenadasElegida)
+
+        if  resultado == None:
+            input("Error, esas coordenadas no corresponden con ninguna de las palabras...")
+        else:
+            input("Muy bien, encontraste la palabra "+resultado)
+            palabrasFaltantes.remove(resultado)
+            if len(palabrasFaltantes) == 0:
+                endTime = datetime.now()
+                bandera = False
+
+    
+    time = (endTime - startTime)
+    return time.total_seconds()
+        
 if __name__ == "__main__":
     socketCliente()
 
