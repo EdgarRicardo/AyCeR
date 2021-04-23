@@ -11,7 +11,7 @@ while True:
     try:
         data, address = s.sockLectura.recvfrom(1024)
         message = json.loads(data.decode('utf-8'))
-        # if the messages from the server is NAME send the client's name
+        # Solo actuar en caso del que mensaje sea de login
         if "login" in message:
             try:
                 if(message["login"]):
@@ -19,8 +19,8 @@ while True:
                     data = {}
                     data["msg"] = "Usuarios conectados: " + str(users)
                     toSend = json.dumps(data) 
-                    sent = s.sockLectura.sendto(toSend.encode('utf-8'), (s.IP_A, s.PORT))
-                    # sent = s.sockLectura.sendto(toSend.encode('utf-8'), address)
+                    # sent = s.sockLectura.sendto(toSend.encode('utf-8'), (s.IP_A, s.PORT))
+                    sent = s.sockLectura.sendto(toSend.encode('utf-8'), address)
                     listUsers[str(address)] = message["msg"]
                 else:
                     del listUsers[str(address)]

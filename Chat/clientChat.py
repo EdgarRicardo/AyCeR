@@ -1,4 +1,3 @@
-# import all the required modules
 import json
 import threading
 from tkinter import *
@@ -17,10 +16,10 @@ class GUI:
 			snd= threading.Thread(target = self.sendMessage, args=(0,2,))
 			snd.start()
 			self.Window.destroy()
-			s.closeSocketEscritura()
-			s.closeSocketLectura()
+			# s.closeSocketEscritura()
+			# s.closeSocketLectura()
 
-	# constructor method
+	# Constructor
 	def __init__(self):
 		
 		#Messages
@@ -89,10 +88,14 @@ class GUI:
 		snd.start()
 
 		self.msg="El usuario "+self.name+" entró al chat :)"
-		snd= threading.Thread(target = self.sendMessage)
+		snd= threading.Thread(target = self.sendMessage, args=(0,0,1,))
 		snd.start()
-		# the thread to receive messages
+		# Hilo para meensajes del chat
 		rcv = threading.Thread(target=self.receive)
+		rcv.start()
+
+		# Hilo para mensajes del Servidor
+		rcv = threading.Thread(target=self.receive,args=(0,))
 		rcv.start()
 
 	# The main layout of the chat
@@ -184,7 +187,7 @@ class GUI:
 		
 		self.textCons.config(state = DISABLED)
 
-	# function to basically start the thread for sending messages
+	# Botón: Enviar mensaje 
 	def sendButton(self, msg):
 		self.textCons.config(state = DISABLED)
 		self.msg=self.name+": "+msg
@@ -192,15 +195,20 @@ class GUI:
 		snd= threading.Thread(target = self.sendMessage, args = (1,0,) )
 		snd.start()
 
-	# function to receive messages
-	def receive(self):
+	# Rcibir mensajes
+	def receive(self,lectura=True):
 		while True:
 			try:
-				data, address = s.sockLectura.recvfrom(1024)
+				if lectura: # Usuarios del chat
+					data, address = s.sockLectura.recvfrom(1024)
+				else: # Servidor 
+					data, address = s.sockEscritura.recvfrom(1024)
 				message = json.loads(data.decode('utf-8'))
-				# if the messages from the server is NAME send the client's name
-				if "login" not in message:
-					# insert messages to text box
+				
+				print(address)
+				# Si no es mensaje de usuario entrante
+				if "login" not in message and ("notToMe" not in message or True): # True por el momento, despues se verificara port y ip para que no llegue a ti mismo
+					# Se inserta el mensaje en el componente
 					self.textCons.config(state = NORMAL)
 					self.textCons.insert(END,
 										message["msg"]+"\n\n")
@@ -214,8 +222,9 @@ class GUI:
 				print("Socket de Lectura Cerrado")
 				break
 		
-	# function to send messages
-	def sendMessage(self, flag=False, login=0):
+	# Enviar mensaje
+	# Flag es para cuando el mensaje viene de la interfaz
+	def sendMessage(self, flag=False, login=0, notToMe = False):
 		if flag:
 			self.textCons.config(state=DISABLED)
 		while True:
@@ -226,6 +235,8 @@ class GUI:
 					data["login"] = True
 				elif login == 2:
 					data["login"] = False
+				if notToMe:
+					data["notToMe"] = True
 				toSend = json.dumps(data) 
 				sent = s.sockEscritura.sendto(toSend.encode('utf-8'), (s.IP_A, s.PORT))
 				break
