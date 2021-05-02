@@ -59,8 +59,8 @@ def post(headers):
 		response = 'HTTP/1.1 500  INTERNAL SERVER ERROR\r\n\nError en el servidor: '+str(e)
 		return response.encode('utf-8')
 
-def put(headers):
-	print(headers)
+def put(request):
+	print(request.split(b'\r\n'))
 	# filename = headers[0].split()[1]
 	# Get the content of the file
 	filename = '/'
@@ -119,11 +119,11 @@ def threadClient(client,addr):
 				break;
 			request += data
 		# Parse HTTP headers
-		typeRequest = request[:10].decode('utf-8').split('\n')[0].split()[0]
+		typeRequest = request[:20].decode('utf-8').split('\r\n')[0].split()[0]
 
 		if typeRequest != "PUT":
 			request = request.decode('utf-8')
-			headers = request.split('\n')
+			headers = request.split('\r\n')
 
 		if typeRequest == "GET":
 			response = get(headers)
