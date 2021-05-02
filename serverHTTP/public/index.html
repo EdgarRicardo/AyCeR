@@ -7,23 +7,25 @@
 	<div class="container my-5">
 	    <h1>Hola :)</h1>
 	    <img src="/composer.png" class="img-fluid my-3">
-	    <form>
+	    <form action="http://localhost:8001" method="post">
 		    <div class="mb-3">
 			  <label for="exampleFormControlInput1" class="form-label">Email:</label>
-			  <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+			  <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
 			</div>
 			<div class="mb-3">
 			  <label for="exampleFormControlTextarea1" class="form-label">Tus pensamientos: </label>
-			  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+			  <textarea class="form-control" id="pensamientos" name="pensamientos" rows="3" required></textarea>
 			</div>
+			<input class="btn btn-primary" type="submit" value="Enviar">
 		</form>
 
-		<form>
-		  <div class="form-group">
+		<!-- <form action="http://localhost:8001" method="post" enctype="multipart/form-data">
+		  <div class="mb-3">
 		    <label for="exampleFormControlFile1">Elige un archivo</label>
-		    <input type="file" class="form-control-file" id="exampleFormControlFile1">
+		    <input type="file" class="form-control-file" name="file0" id="exampleFormControlFile1" required>
 		  </div>
-		</form>
+		  <input class="btn btn-primary" type="submit" value="Enviar archivo">
+		</form> -->
 
 	</div>
 </body>
