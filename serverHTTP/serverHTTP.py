@@ -8,11 +8,13 @@ SERVER_HOST = 'localhost'
 SERVER_PORT = 8001
 PUBLIC = 'public'
 
-def get(headers):
-	filename = headers[0].split()[1]
+def get(request):
+	filename = request[0].decode('utf-8').split()[1]
 	# Get the content of the file
 	if filename == '/':
 		filename = '/index.html'
+	else:
+		filename = '/getFiles/'+filename
 	try:
 		# Send HTTP response
 		file = open(PUBLIC+filename,'rb')
@@ -35,10 +37,13 @@ def get(headers):
 
 
 
-def post(headers):
-	pprint(headers)
-	filename = headers[0].split()[1]
+def post(request):
+	for x in request:
+		print(x)
+	filename = request[0].decode('utf-8').split()[1]
 	# Get the content of the file
+	if 'getFiles' in filename:
+		return b'HTTP/1.1 405 METHOD NOT ALLOWED\r\n\nMetodo no permitido para este archivo'
 	if filename == '/':
 		filename = '/post.html'
 	try:
@@ -54,13 +59,18 @@ def post(headers):
 		response += fContent
 		return response
 	except FileNotFoundError as e:
-		return b'HTTP/1.1 404 NOT FOUND\r\n\nArchivo no encontrado';
+		return b'HTTP/1.1 404 NOT FOUND\r\n\nArchivo no encontrado'
 	except Exception as e:
 		response = 'HTTP/1.1 500  INTERNAL SERVER ERROR\r\n\nError en el servidor: '+str(e)
 		return response.encode('utf-8')
 
 def put(request):
-	print(request.split(b'\r\n'))
+	boundary = None
+	for x in request:
+		if b'boundary' in x:
+			boundary = x
+		print(x)
+	print(boundary)
 	# filename = headers[0].split()[1]
 	# Get the content of the file
 	filename = '/'
@@ -84,8 +94,8 @@ def put(request):
 		response = 'HTTP/1.1 500  INTERNAL SERVER ERROR\r\n\nError en el servidor: '+str(e)
 		return response.encode('utf-8')
 
-def head(headers):
-	filename = headers[0].split()[1]
+def head(request):
+	filename = request[0].decode('utf-8').split()[1]
 	# Get the content of the file
 	if filename == '/':
 		filename = '/index.html'
@@ -119,20 +129,17 @@ def threadClient(client,addr):
 				break;
 			request += data
 		# Parse HTTP headers
-		typeRequest = request[:20].decode('utf-8').split('\r\n')[0].split()[0]
-
-		if typeRequest != "PUT":
-			request = request.decode('utf-8')
-			headers = request.split('\r\n')
+		arrayRequest = request.split(b'\r\n')
+		typeRequest = arrayRequest[0].decode('utf-8').split()[0]
 
 		if typeRequest == "GET":
-			response = get(headers)
+			response = get(arrayRequest)
 		elif typeRequest == "POST":
-			response = post(headers)
+			response = post(arrayRequest)
 		elif typeRequest == "PUT":
-			response = put(request)
+			response = put(arrayRequest)
 		elif typeRequest == "HEAD":
-			response = head(headers)
+			response = head(arrayRequest)
 		else:
 			response = b'HTTP/1.1 405 METHOD NOT ALLOWED\r\n\nMetodo no permitido'
 
