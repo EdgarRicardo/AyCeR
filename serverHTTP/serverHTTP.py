@@ -99,6 +99,8 @@ def head(request):
 	# Get the content of the file
 	if filename == '/':
 		filename = '/index.html'
+	else:
+		filename = '/getFiles/'+filename
 	try:
 		# Send HTTP response
 		file = open(PUBLIC+filename,'rb')

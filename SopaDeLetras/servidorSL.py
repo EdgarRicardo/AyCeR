@@ -78,6 +78,7 @@ def socketServidor():
                                 toSave = json.loads(data.decode('utf-8'))
                                 scoresFile.write('\n'+toSave["nickname"]+': '+str(toSave["time"])+' seg en la categoria '+dif+'\n')
                                 scoresFile.close()
+                                print("Se registro score de "+toSave["nickname"])
                             else:
                                 break
                         else:
