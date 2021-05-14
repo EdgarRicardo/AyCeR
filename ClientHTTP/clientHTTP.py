@@ -9,10 +9,17 @@ visitados = []
 pool = ThreadPoolExecutor(max_workers=30)
 
 def analyseHTML(link,filename):
-	listToCheck = ["https://www.cdc.gov/coronavirus/2019-ncov/testing/index.html","http://www.google.com/","http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"]
-	#listToCheck = []
-	file = open(filename,"r")
-	file.close()
+	#Caso 1: /dddd/ddd -> url + linkFound -> listToCheck
+	#Caso 2: ddddd/dddd -> url + /linkFound -> listToCheck
+	#Caso 3: https://sdfdfdfssdfsdf.xxx/fcfasff -> listToCheck
+	# http://dfsdfsdfsdf.ccc/sdfsdfsdf/dfdfsdf -> listToCheck
+	#listToCheck = ["https://www.cdc.gov/coronavirus/2019-ncov/testing/index.html","http://www.google.com/","http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"]
+	urlSplit = link.split("/")[0:3]
+	url = "/".join(urlSplit)
+	listToCheck = []
+	html = open(filename,"r")
+	# Edgar's code
+	html.close()
 	return listToCheck
 
 def saveContentFile(content,directory,filename):
