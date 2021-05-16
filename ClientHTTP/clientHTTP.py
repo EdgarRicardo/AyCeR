@@ -98,7 +98,7 @@ def poolThreads(listLinks):
 if __name__ == "__main__":
 	#link = input("¿Dame tu link?: ")
 	#link = "http://www.google.com/"
-	#link = "http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"
+	link = "http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"
 	#link = "https://es.wikipedia.org/wiki/Page"
 	link = "https://www.cdc.gov/coronavirus/2019-ncov/testing/index.html"
 	listLinks = getFiles(link)
