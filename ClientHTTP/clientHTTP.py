@@ -1,12 +1,35 @@
+from typing import List
 import requests
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 import os
 import threading
 from requests.exceptions import HTTPError  
+from html.parser import HTMLParser
+import sys
 
 visitados = []
 pool = ThreadPoolExecutor(max_workers=30)
+
+
+'''class LinkParser(HTMLParser):
+    def handle_starttag(self, tag, attrs): 
+        if tag == 'a':
+            for attr in attrs:
+                if attr[0] == 'href':
+                    self.links.append(attr[1])'''
+
+class URLHtmlParser(HTMLParser):
+    links = []
+    
+    def handle_starttag(self, tag, attrs):
+        if tag != 'a':
+            return
+           
+        for attr in attrs:
+               if 'href' in attr[0]:
+                   self.links.append(attr[1])
+                   break
 
 def analyseHTML(link,filename):
 	#Caso 1: /dddd/ddd -> url + linkFound -> listToCheck
@@ -17,8 +40,20 @@ def analyseHTML(link,filename):
 	urlSplit = link.split("/")[0:3]
 	url = "/".join(urlSplit)
 	listToCheck = []
-	html = open(filename,"r")
-	# Edgar's code
+	html = open(filename,errors='ignore')
+	content = html.read()
+	parser = URLHtmlParser()
+	parser.feed(content)
+
+	for elemento in parser.links:
+		if elemento[0:4] != "http":
+			if elemento[0] == '/':
+				listToCheck.append(url + elemento)
+			else:
+				listToCheck.append(url + '/' + elemento)
+		else:
+			listToCheck.append(elemento)
+	print(listToCheck)
 	html.close()
 	return listToCheck
 
