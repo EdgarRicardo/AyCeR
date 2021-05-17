@@ -4,48 +4,37 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 import os
 import threading
-from requests.exceptions import HTTPError  
-from html.parser import HTMLParser
-import sys
+from requests.exceptions import HTTPError 
+from selectolax.parser import HTMLParser 
 
 visitados = []
 pool = ThreadPoolExecutor(max_workers=30)
 
-
-'''class LinkParser(HTMLParser):
-    def handle_starttag(self, tag, attrs): 
-        if tag == 'a':
-            for attr in attrs:
-                if attr[0] == 'href':
-                    self.links.append(attr[1])'''
-
-class URLHtmlParser(HTMLParser):
+def extract(content):
     links = []
+    dom = HTMLParser(content)
+    for tag in dom.tags('a'):
+        attrs = tag.attributes
+        if 'href' in attrs:
+            links.append(attrs['href'])
     
-    def handle_starttag(self, tag, attrs):
-        if tag != 'a':
-            return
-           
-        for attr in attrs:
-               if 'href' in attr[0]:
-                   self.links.append(attr[1])
-                   break
+    for tag in dom.tags('img'):
+        attrs = tag.attributes
+        if 'href' in attrs:
+            links.append(attrs['href'])
+
+    return links
+
 
 def analyseHTML(link,filename):
-	#Caso 1: /dddd/ddd -> url + linkFound -> listToCheck
-	#Caso 2: ddddd/dddd -> url + /linkFound -> listToCheck
-	#Caso 3: https://sdfdfdfssdfsdf.xxx/fcfasff -> listToCheck
-	# http://dfsdfsdfsdf.ccc/sdfsdfsdf/dfdfsdf -> listToCheck
-	#listToCheck = ["https://www.cdc.gov/coronavirus/2019-ncov/testing/index.html","http://www.google.com/","http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"]
 	urlSplit = link.split("/")[0:3]
 	url = "/".join(urlSplit)
 	listToCheck = []
-	html = open(filename,errors='ignore')
+	html = open(filename,"r",encoding="iso-8859-1")
 	content = html.read()
-	parser = URLHtmlParser()
-	parser.feed(content)
-
-	for elemento in parser.links:
+	html.close()
+	listaAux = extract(content)
+	for elemento in  listaAux:
 		if elemento[0:4] != "http":
 			if elemento[0] == '/':
 				listToCheck.append(url + elemento)
@@ -53,8 +42,6 @@ def analyseHTML(link,filename):
 				listToCheck.append(url + '/' + elemento)
 		else:
 			listToCheck.append(elemento)
-	print(listToCheck)
-	html.close()
 	return listToCheck
 
 def saveContentFile(content,directory,filename):
@@ -110,13 +97,12 @@ def poolThreads(listLinks):
 	for future in concurrent.futures.as_completed(the_futures):
 		poolThreads(future.result())
 
-
 if __name__ == "__main__":
 	#link = input("¿Dame tu link?: ")
 	link = "http://www.researchgate.net/profile/M_Gotic/publication/260197848_Mater_Sci_Eng_B47_%281997%29_33/links/0c9605301e48beda0f000000.pdf"
 	link = "https://es.wikipedia.org/wiki/Page"
 	link = "https://www.cdc.gov/coronavirus/2019-ncov/testing/index.html"
-	link = "http://www.google.com/"
+	#link = "http://www.google.com/"
 	listLinks = getFiles(link)
 	poolThreads(listLinks)
 
