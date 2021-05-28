@@ -55,7 +55,7 @@ def socketCliente():
                         print("Felicidades crack, ganaste!!!\nDanos un nickname para registrar tu score de: "+str(realTime)+" seg")
                         data["win"] = True
                     else:
-                        print("Suerte para la próxima, fracasado!!! jajaja\nDanos un nickname para registrar tu miserable fracaso")
+                        print("Suerte para la próxima, fracasado!!! jajaja\nDanos un nickname para registrar tu miserable fracaso:")
                         data["win"] = False
                     
                     nickname = input()

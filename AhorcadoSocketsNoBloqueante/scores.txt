@@ -1,13 +1,5 @@
 Scores:
 
-:)Win: 63.935521 seg en dificultad 1
 
-EdgarElMaster: 19.142632 seg en dificultad 1
 
-('192.168.56.1', 55319) : TestX en 44.507981 seg en dificultad 3
-
-('192.168.56.1', 55321) : сссссс en 112.567101 seg en dificultad 2
-
-('192.168.56.1', 55395) Perdedor: :(SoyMalo en 10.308797 seg en dificultad 1
-
-('192.168.56.1', 55399) Ganador: :)SoyBuenisimo en 2.707118 seg en dificultad 1
+('192.168.56.1', 64561) Ganador: Fffffss en 6.845365 seg en dificultad 1

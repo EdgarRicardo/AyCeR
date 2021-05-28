@@ -1,0 +1,6 @@
+Scores:
+
+
+Ganador	fffff - ('192.168.56.1', 64991): 32.916451 seg en la categoria 5
+
+Perdedor	dddddd - ('192.168.56.1', 65004): 43.532563 seg en la categoria 3

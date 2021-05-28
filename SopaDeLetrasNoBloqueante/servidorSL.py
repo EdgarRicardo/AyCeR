@@ -1,0 +1,115 @@
+import socket
+import random
+import json
+import sys
+from generarSopa import Sopa
+import selectors
+import pprint
+
+host = socket.gethostname() # Esta función nos da el nombre de la máquina
+selector = selectors.DefaultSelector()
+port = 12346
+BUFFER_SIZE = 65000
+size = 15
+sopaClass = Sopa()
+
+animales = ["leon","perro","gato","lagartija","serpiente","caballo","tiburon","cucaracha","ardilla","tigre","conejo","abeja","burro","cerdo","jirafa","tortuga","hormiga","elefante","pato","peces"]
+cocina = ["tenedor","plato","cuchara","sarten","cuchillo","sopa","estufa","refrigerador","comida","cacerola","cubiertos","especia","sal","ajo","horno","microondas","embudo","receta","cocinero","chef","pinche"]
+oficina = ["archivo","computadora","lapiz","plumas","hojas","jefe","papelera","tijeras","agenda","engrapadora","impresora","calendario","contabilidad","finanzas","escritorio","telefono","godinez","quincena","reportes","dinero"]
+frutas = ["naranja","pera","melon","sandia","fresa","guayaba","manzana","papaya","mango","piña","platano","uvas","arandano","mandarina","cereza","zarzamora","frambuesa","limon","coco","higo"]
+pruebas = ["casa","perro","computadora","lagartija"]
+
+def is_json(jsonVerify):
+  try:
+    load = json.loads(jsonVerify)
+  except ValueError as e:
+    return False
+  return load
+
+def closeClient(conn,addr):
+    try:
+        conn.close()
+        selector.unregister(conn)
+        print("Se desconecto el client: "+str(addr))
+    except Exception as e:
+        print("Se desconecto el client: "+str(addr))
+        print("Error: "+str(e))
+
+def generarSopa(categoria):
+    sopa = [["" for y in range(size+1)] for x in range(size+1)]
+    datosPalabras = {}
+    
+    for el in categoria:
+        sopaClass.posicionarPalabra(el,sopa,datosPalabras)
+
+    for x in range(size+1): 
+        for y in range(size+1):
+            if sopa[x][y]  == "":
+                sopa[x][y] =  random.choice('abcdefghijklmnñopqrstuvwxyz')
+
+    sopaClass.printSopa(sopa)
+    pprint.pprint(datosPalabras)
+
+    return sopa, datosPalabras
+def read(conn,mask):
+    addr = conn.getpeername()
+    try:
+        data = conn.recv(BUFFER_SIZE)
+        if data:
+            if type(is_json(data.decode('utf-8'))) is int:
+                dif = data.decode('utf-8')
+                print('[*] Categoria elegida por '+str(addr)+': ' + dif)
+                if int(dif) == 1:
+                    sopa,datosPalabras = generarSopa(animales)
+                elif int(dif) == 2:
+                    sopa,datosPalabras = generarSopa(cocina)
+                elif int(dif) == 3:
+                    sopa,datosPalabras = generarSopa(oficina)
+                elif int(dif) == 4:
+                    sopa,datosPalabras = generarSopa(frutas)
+                elif int(dif) == 5:
+                    sopa,datosPalabras = generarSopa(pruebas)
+
+                sopaLetras = {
+                    "sopa": sopa,
+                    "datosPalabras": datosPalabras 
+                }
+                #Se enviara la sopa de letras + el array con las palabras a encontrar
+                res = json.dumps(sopaLetras)
+                conn.send(res.encode('utf-8'))
+            elif is_json(data.decode('utf-8')):
+                scoresFile = open('scores.txt','a+')
+                toSave = json.loads(data.decode('utf-8'))
+                scoresFile.write('\n'+toSave["win"]+'\t'+toSave["nickname"]+' - '+str(addr)+': '+str(toSave["time"])+' seg en la categoria '+toSave["dif"]+'\n')
+                scoresFile.close()
+                print("Se registro score de "+toSave["nickname"]+" :"+str(addr))
+                closeClient(conn,addr)
+    except socket.error as e:
+        closeClient(conn,addr)
+        print("Error: "+str(e))
+    except Exception as e:
+        print("Se desconecto el client: "+str(addr))
+        print("Error: "+str(e))
+
+def accept(socket_tcp,mask):
+    conn, addr = socket_tcp.accept() # Establecemos la conexión con el cliente
+    conn.setblocking(False)
+    print('[*] Conexión establecida con: ', addr)  
+    selector.register(conn, selectors.EVENT_READ, read)
+
+def socketServidor():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_tcp: #socket.AF_INE -> IPv4 ; socket.SOCK_STREAM -> TCP : Socket TCP/IP
+        socket_tcp.bind((host, port)) 
+        socket_tcp.listen(5) # Esperamos la conexión del cliente y capacidad de la cola de conexiones pendientes
+        socket_tcp.setblocking(False)
+        selector.register(socket_tcp, selectors.EVENT_READ, accept)
+        while True:
+            print('Esperando usuario') 
+            for key, mask in selector.select(timeout=1):
+                callback = key.data
+                callback(key.fileobj, mask)
+
+if __name__ == "__main__":
+    socketServidor()
+
+    
