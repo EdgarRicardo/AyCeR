@@ -1,0 +1,17 @@
+
+
+{
+  "fecha": "09 de febrero 2021. jeje",
+  "encuestadora": 0,
+  "keys" : [
+     "Acuerdo",  "Desacuerdo",  "Ni acuerdo ni desacuerdo",  "Ns/Nc"
+   ],
+   "datos" : [
+    62, 29, 7, 9
+   ],
+   "colores" : [
+    "#04fdfc","#532c7b","#252626","#b5b5b5"
+   ]
+}
+
+
